@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <!--应用名-->
+    <property name="APP_NAME" value="demo" />
+    <contextName>${APP_NAME}</contextName>
+    <!--输出到logstash的appender-->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <!--可以访问的logstash日志收集主机端口-->
+        <destination>127.0.0.1:4560</destination>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <mdc/>
+                <pattern>
+                    <pattern>
+                        {
+                        "app": "${APP_NAME}",
+                        "@timestamp": "%date{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}",
+                        "traceId": "%mdc{TRACE_ID}",
+                        "class": "%logger{100}",
+                        "thread": "%thread",
+                        "level": "%level",
+                        "message": "%message"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="LOGSTASH"/>
+    </root>
+
+</configuration>

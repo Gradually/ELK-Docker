@@ -1,0 +1,62 @@
+version: '3'
+services:
+  elasticsearch:
+    restart: always
+    image: elasticsearch:7.7.0
+    container_name: elasticsearch
+    environment:
+      TZ: "Asia/Shanghai"
+      ## 设置使用jvm内存大小
+      ES_JAVA_OPTS: -Xms512M -Xmx512M
+      ## 设置集群名称
+      cluster.name: cafewalk
+      ## 以单一节点模式启动
+      discovery.type: single-node
+      network.host: 0.0.0.0
+    volumes:
+      #插件文件挂载
+      - ./elasticsearch/plugins:/usr/share/elasticsearch/plugins 
+      #数据文件挂载
+      - ./elasticsearch/data:/usr/share/elasticsearch/data 
+    ports:
+      - 9200:9200
+  kibana:
+    image: kibana:7.7.0
+    container_name: kibana
+    restart: always
+    links:
+      #可以用es这个域名访问elasticsearch服务
+      - elasticsearch:es 
+    depends_on:
+      #kibana在elasticsearch启动之后再启动
+      - elasticsearch 
+    environment:
+      ELASTICSEARCH_HOSTS: "http://es:9200"
+      TZ: "Asia/Shanghai"
+      I18N_LOCALE: zh-CN
+      SERVER_NAME: "cawa-kibana"
+    ports:
+      - 5601:5601
+  logstash:
+    image: logstash:6.4.0
+    container_name: logstash
+    restart: always
+    entrypoint:
+      ## 运行时执行脚本
+      - /usr/share/logstash/bash/init.sh
+    volumes:
+      #挂载logstash的配置文件
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf 
+      ## 挂载shell脚本
+      - ./logstash/bash:/usr/share/logstash/bash
+      ## 挂载Gemfile文件，主要是修改指定json_lines插件的本地安装路径,在线安装需要等待很久
+      - ./logstash/Gemfile:/usr/share/logstash/Gemfile
+    depends_on:
+      #kibana在elasticsearch启动之后再启动
+      - elasticsearch 
+    links:
+      #可以用es这个域名访问elasticsearch服务
+      - elasticsearch:es 
+    ports:
+      - 4560:4560
+      - 4561:4561
