@@ -12,6 +12,25 @@ docker-compose up
 docker-compose up -d
 ```
 
+### Kibana
+```text
+127.0.0.1:5601
+```
+
+### Elasticsearch
+
+```text
+127.0.0.1:9200
+```
+
+### Logstash 
+```text
+
+127.0.0.1:4560
+
+127.0.0.1:4561
+
+```
 ## 项目目录
 
 - #### docker-compose.yml
