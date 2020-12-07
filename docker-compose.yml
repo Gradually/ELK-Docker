@@ -9,10 +9,14 @@ services:
       ## 设置使用jvm内存大小
       ES_JAVA_OPTS: -Xms512M -Xmx512M
       ## 设置集群名称
-      cluster.name: cafewalk
+      cluster.name: demo
       ## 以单一节点模式启动
       discovery.type: single-node
       network.host: 0.0.0.0
+    logging:  
+      driver: "json-file" 
+      options:
+        max-size: "50m"
     volumes:
       #插件文件挂载
       - ./elasticsearch/plugins:/usr/share/elasticsearch/plugins 
@@ -35,6 +39,10 @@ services:
       TZ: "Asia/Shanghai"
       I18N_LOCALE: zh-CN
       SERVER_NAME: "cawa-kibana"
+    logging:  
+      driver: "json-file" 
+      options:
+        max-size: "50m"
     ports:
       - 5601:5601
   logstash:
@@ -57,6 +65,10 @@ services:
     links:
       #可以用es这个域名访问elasticsearch服务
       - elasticsearch:es 
+    logging:  
+      driver: "json-file" 
+      options:
+        max-size: "50m"
     ports:
       - 4560:4560
       - 4561:4561
